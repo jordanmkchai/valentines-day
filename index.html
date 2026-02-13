@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Will You Be My Valentine? 💕</title>
   <style>
     * {
@@ -17,13 +17,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-family: system-ui, -apple-system, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: linear-gradient(135deg, #ffe4f1 0%, #ffcccb 50%, #ffb6c1 100%);
       overflow-x: hidden;
       color: #3a0b26;
       touch-action: manipulation;
     }
 
+    /* Background hearts behind everything */
     .hearts-bg {
       position: fixed;
       inset: 0;
@@ -45,7 +46,7 @@
     }
 
     .main-card {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.97);
       padding: clamp(2rem, 5vw, 3rem);
       border-radius: 2rem;
       box-shadow: 0 25px 50px rgba(141, 10, 67, 0.4);
@@ -53,7 +54,7 @@
       width: 100%;
       text-align: center;
       backdrop-filter: blur(15px);
-      z-index: 10;
+      z-index: 1;
       position: relative;
     }
 
@@ -64,7 +65,7 @@
     }
 
     .title {
-      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-size: clamp(2.4rem, 7vw, 3.6rem);
       font-weight: 800;
       margin-bottom: 0.5rem;
       color: #b20c52;
@@ -86,7 +87,7 @@
 
     button {
       border: none;
-      border-radius: 2rem;
+      border-radius: 999px;
       cursor: pointer;
       font-weight: 600;
       transition: all 0.2s ease;
@@ -97,10 +98,11 @@
       align-items: center;
       justify-content: center;
       min-height: 3rem;
+      white-space: nowrap;
     }
 
     button:active {
-      transform: scale(0.98);
+      transform: scale(0.97);
     }
 
     #yesBtn {
@@ -134,22 +136,23 @@
     }
 
     .footer {
-      position: absolute;
-      bottom: 2rem;
+      position: fixed;
+      bottom: 1.2rem;
       left: 50%;
       transform: translateX(-50%);
       font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-      color: black !important;
+      color: black;
       text-align: center;
       max-width: 90%;
       padding: 0 1rem;
+      z-index: 2; /* above hearts and card */
     }
 
     .hidden {
       display: none !important;
     }
 
-    /* Mobile optimizations */
+    /* Mobile tweaks */
     @media (max-width: 480px) {
       .buttons {
         flex-direction: column;
@@ -160,15 +163,14 @@
       }
       .main-card {
         margin: 1rem;
-        padding: 1.5rem;
+        padding: 1.75rem;
       }
     }
 
-    /* Landscape mobile */
     @media (max-height: 500px) and (orientation: landscape) {
       .main-card {
         margin: 1rem;
-        padding: 1rem;
+        padding: 1.25rem;
       }
     }
   </style>
@@ -186,22 +188,18 @@
     </p>
 
     <div class="buttons" id="buttonsRow">
-      <button id="yesBtn" class="pulse">
-        Yes 💘
-      </button>
-      <button id="noBtn">
-        No 😢
-      </button>
+      <button id="yesBtn" class="pulse">Yes 💘</button>
+      <button id="noBtn">No 😢</button>
     </div>
   </div>
 
-  <!-- Footer (always visible at bottom) -->
+  <!-- Footer pinned to bottom (like bottom_frame in Tkinter) -->
   <p id="footerHint" class="footer">
     (You can try clicking "No", but it's not going to end well for my feelings…)
   </p>
 
   <script>
-    // Background hearts
+    // --- Background hearts (start_heart_animation equivalent) ---
     const heartsBg = document.getElementById("heartsBg");
     const heartChars = ["💖", "💕", "💗", "💘"];
 
@@ -223,11 +221,10 @@
       setTimeout(() => heartsBg.removeChild(heart), (duration + Math.abs(delay)) * 1000);
     }
 
-    // Spawn hearts continuously
     setInterval(spawnHeart, 900);
-    spawnHeart(); // immediate first heart
+    spawnHeart();
 
-    // Main logic
+    // --- Main interaction logic (mirrors your Python methods) ---
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
     const emoji = document.getElementById("emoji");
@@ -237,93 +234,94 @@
     const footerHint = document.getElementById("footerHint");
 
     let noClickCount = 0;
-
     const noMessages = [
-      "No 😢", "Are you sure? 😟", "Think again… 🥺", 
-      "Last chance… 💔", "You're breaking my heart 😭", 
+      "No 😢",
+      "Are you sure? 😟",
+      "Think again… 🥺",
+      "Last chance… 💔",
+      "You’re breaking my heart 😭",
       "Okay now you HAVE to say yes 😤"
     ];
 
     const emojiStates = ["🥺", "😢", "😭", "😖", "😵‍💫", "🤯", "🫠"];
 
-    noBtn.addEventListener("click", function() {
+    noBtn.addEventListener("click", () => {
       noClickCount++;
 
+      // Update No button text
       const idx = Math.min(noClickCount, noMessages.length - 1);
       noBtn.textContent = noMessages[idx];
 
+      // Update emoji
       const emojiIdx = Math.min(noClickCount, emojiStates.length - 1);
       emoji.textContent = emojiStates[emojiIdx];
 
-      const scaleFactor = 1 + noClickCount * 0.3;
-      yesBtn.style.transform = `scale(${scaleFactor})`;
+      // Grow Yes button
+      const scale = 1 + noClickCount * 0.25;
+      yesBtn.style.transform = `scale(${scale})`;
       yesBtn.style.fontSize = (1 + noClickCount * 0.2) + "rem";
       yesBtn.style.padding = `${0.8 + noClickCount * 0.15}rem ${1.5 + noClickCount * 0.25}rem`;
 
+      // Update footer after many "No"s
       if (noClickCount >= 5) {
         noBtn.disabled = true;
         noBtn.textContent = "You can only choose love now 💌";
-        footerHint.textContent = "The \"Yes\" button has won. Choose love! 💕";
+        footerHint.textContent = 'The "Yes" button has won. Choose love! 💕';
       }
     });
 
     yesBtn.addEventListener("click", () => {
-      emoji.textContent = "😍";
-
-      // Random title
-      const titles = [
-        "YAY! You're my Valentine now 💘",
-        "Happy Valentine's Day, my favourite human ❤️",
-        "You said yes! Best day ever 💕"
-      ];
-      title.textContent = titles[Math.floor(Math.random() * titles.length)];
-
-      subtitle.textContent = "Best. Decision. Ever. I promise unlimited hugs, memes, and emotional support!";
-
-      // Random footer message (ALWAYS shows)
-      const footers = [
-        "YAY! You're my Valentine now 💘",
-        "Happy Valentine's Day! I love you loads ❤️",
-        "Best. Decision. Ever. I promise unlimited hugs, memes, and emotional support!"
-      ];
-      footerHint.textContent = footers[Math.floor(Math.random() * footers.length)];
-
-      // Hide buttons
+      // Hide buttons immediately
       buttonsRow.classList.add("hidden");
 
-      // Confetti burst
-      confettiBurst();
+      // Top content after Yes (emoji only, like Python version)
+      emoji.textContent = "😍";
+
+      // Footer random messages
+      const footerOptions = [
+        "YAY! You're my Valentine now 💘",
+        "Happy Valentine’s Day! I love you loads ❤️",
+        "Best. Decision. Ever. I promise unlimited hugs, memes, and emotional support!"
+      ];
+      footerHint.textContent = footerOptions[Math.floor(Math.random() * footerOptions.length)];
+      footerHint.style.color = "black";
+
+      // Confetti hearts
+      launchConfetti();
     });
 
-    // Confetti function (safe for mobile)
-    function confettiBurst() {
-      const colors = ['#ff6b9d', '#ff8fb2', '#ff9aa2', '#ffb7b2', '#ffdac1', '#c3e0e5'];
-      
-      for (let i = 0; i < 80; i++) {
+    // --- Confetti (launch_confetti equivalent, no threads needed) ---
+    function launchConfetti() {
+      const colors = ["#ff6b9d", "#ff8fb2", "#ff9aa2", "#ffb7b2", "#ffdac1", "#c3e0e5"];
+
+      for (let i = 0; i < 120; i++) {
         setTimeout(() => {
-          const heart = document.createElement('div');
-          heart.textContent = '💖';
-          heart.style.position = 'fixed';
-          heart.style.left = Math.random() * 100 + 'vw';
-          heart.style.top = '100vh';
-          heart.style.fontSize = Math.random() * 20 + 16 + 'px';
+          const heart = document.createElement("div");
+          heart.textContent = "💖";
+          heart.style.position = "fixed";
+          heart.style.left = Math.random() * 100 + "vw";
+          heart.style.top = "100vh";
+          heart.style.fontSize = Math.random() * 18 + 16 + "px";
           heart.style.color = colors[Math.floor(Math.random() * colors.length)];
-          heart.style.pointerEvents = 'none';
-          heart.style.zIndex = '100';
+          heart.style.pointerEvents = "none";
+          heart.style.zIndex = "3";
           document.body.appendChild(heart);
 
-          // Animate up
           let y = window.innerHeight;
-          const speed = Math.random() * 3 + 2;
+          const speed = Math.random() * 3 + 3;
           const sway = (Math.random() - 0.5) * 4;
 
           function animate() {
             y -= speed;
-            heart.style.top = y + 'px';
-            heart.style.left = (parseFloat(heart.style.left) + sway) + 'px';
+            const currentLeft = parseFloat(heart.style.left);
+            heart.style.top = y + "px";
+            heart.style.left = currentLeft + sway + "px";
             heart.style.transform = `rotate(${Math.random() * 360}deg)`;
-            if (y > -50) requestAnimationFrame(animate);
-            else document.body.removeChild(heart);
+            if (y > -50) {
+              requestAnimationFrame(animate);
+            } else {
+              document.body.removeChild(heart);
+            }
           }
           animate();
         }, i * 20);
