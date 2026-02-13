@@ -272,24 +272,21 @@
 
     yesBtn.addEventListener("click", () => {
       emoji.textContent = "😍";
+      emoji.classList.remove("pop");
+      void emoji.offsetWidth;
+      emoji.classList.add("pop");
 
-      // Random title
-      const titles
+      // FIXED: Always update title reliably
+      const titles = ["YAY! You're my Valentine now 💘", "Happy Valentine’s Day! I love you loads ❤️", "Best. Decision. Ever. I promise unlimited hugs, memes, and emotional support!"];
+      titleLabel.textContent = titles[Math.floor(Math.random() * titles.length)];
+      titleLabel.style.color = "#ff1493";
+      titleLabel.style.fontSize = "2.5em";
 
-      // Top content after Yes (emoji only, like Python version)
-      emoji.textContent = "😍";
+      buttonsRow.classList.add("hidden");
+      footerHint.textContent = "Screenshot this so you can’t deny it later. 😌";
+      footerHint.style.zIndex = "30";  // Above hearts
 
-      // Footer random messages
-      const footerOptions = [
-        "YAY! You're my Valentine now 💘",
-        "Happy Valentine’s Day! I love you loads ❤️",
-        "Best. Decision. Ever. I promise unlimited hugs, memes, and emotional support!"
-      ];
-      footerHint.textContent = footerOptions[Math.floor(Math.random() * footerOptions.length)];
-      footerHint.style.color = "black";
-
-      // Confetti hearts
-      launchConfetti();
+      burstConfetti();
     });
 
     // --- Confetti (launch_confetti equivalent, no threads needed) ---
