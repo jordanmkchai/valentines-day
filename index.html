@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Will You Be My Valentine? 💕</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #ffe4f1 0%, #ffcccb 50%, #ffb6c1 100%);
+      overflow-x: hidden;
+      color: #3a0b26;
+      touch-action: manipulation;
+    }
+
+    .hearts-bg {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .heart {
+      position: absolute;
+      font-size: clamp(16px, 2vw, 24px);
+      opacity: 0.8;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+      15% { opacity: 0.9; }
+      100% { transform: translateY(-120vh) translateX(30px) scale(1.4); opacity: 0; }
+    }
+
+    .main-card {
+      background: rgba(255, 255, 255, 0.95);
+      padding: clamp(2rem, 5vw, 3rem);
+      border-radius: 2rem;
+      box-shadow: 0 25px 50px rgba(141, 10, 67, 0.4);
+      max-width: min(90vw, 450px);
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(15px);
+      z-index: 10;
+      position: relative;
+    }
+
+    .emoji {
+      font-size: clamp(4rem, 12vw, 8rem);
+      margin-bottom: 1rem;
+      transition: transform 0.3s ease;
+    }
+
+    .title {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: #b20c52;
+    }
+
+    .subtitle {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      color: #7a2445;
+      margin-bottom: 2rem;
+      line-height: 1.4;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    button {
+      border: none;
+      border-radius: 2rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 4vw, 2rem);
+      font-size: clamp(1rem, 3vw, 1.3rem);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 3rem;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    #yesBtn {
+      background: linear-gradient(135deg, #1ec861, #09ad4a);
+      color: white;
+      min-width: 90px;
+    }
+
+    #yesBtn.pulse {
+      animation: pulse 0.8s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.03); }
+    }
+
+    #noBtn {
+      background: white;
+      color: #b20c52;
+      border: 3px solid #ff7cae;
+    }
+
+    #noBtn:hover:not(:disabled) {
+      background: #ffe8f1;
+    }
+
+    #noBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      color: black !important;
+      text-align: center;
+      max-width: 90%;
+      padding: 0 1rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 480px) {
+      .buttons {
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+      button {
+        width: 100%;
+      }
+      .main-card {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+    }
+
+    /* Landscape mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .main-card {
+        margin: 1rem;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background hearts -->
+  <div class="hearts-bg" id="heartsBg"></div>
+
+  <!-- Main card -->
+  <div class="main-card">
+    <div id="emoji" class="emoji">🥺</div>
+    <h1 id="title" class="title">Will you be my Valentine?</h1>
+    <p id="subtitle" class="subtitle">
+      I coded this just for you. Please say yes so the compiler (and my heart) don't break. 💖
+    </p>
+
+    <div class="buttons" id="buttonsRow">
+      <button id="yesBtn" class="pulse">
+        Yes 💘
+      </button>
+      <button id="noBtn">
+        No 😢
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer (always visible at bottom) -->
+  <p id="footerHint" class="footer">
+    (You can try clicking "No", but it's not going to end well for my feelings…)
+  </p>
+
+  <script>
+    // Background hearts
+    const heartsBg = document.getElementById("heartsBg");
+    const heartChars = ["💖", "💕", "💗", "💘"];
+
+    function spawnHeart() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.textContent = heartChars[Math.floor(Math.random() * heartChars.length)];
+      const startLeft = Math.random() * 100;
+      const duration = 6 + Math.random() * 6;
+      const delay = -Math.random() * duration;
+
+      heart.style.left = startLeft + "vw";
+      heart.style.bottom = "-50px";
+      heart.style.animationDuration = duration + "s";
+      heart.style.animationDelay = delay + "s";
+
+      heartsBg.appendChild(heart);
+
+      setTimeout(() => heartsBg.removeChild(heart), (duration + Math.abs(delay)) * 1000);
+    }
+
+    // Spawn hearts continuously
+    setInterval(spawnHeart, 900);
+    spawnHeart(); // immediate first heart
+
+    // Main logic
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const emoji = document.getElementById("emoji");
+    const title = document.getElementById("title");
+    const subtitle = document.getElementById("subtitle");
+    const buttonsRow = document.getElementById("buttonsRow");
+    const footerHint = document.getElementById("footerHint");
+
+    let noClickCount = 0;
+
+    const noMessages = [
+      "No 😢", "Are you sure? 😟", "Think again… 🥺", 
+      "Last chance… 💔", "You're breaking my heart 😭", 
+      "Okay now you HAVE to say yes 😤"
+    ];
+
+    const emojiStates = ["🥺", "😢", "😭", "😖", "😵‍💫", "🤯", "🫠"];
+
+    noBtn.addEventListener("click", function() {
+      noClickCount++;
+
+      const idx = Math.min(noClickCount, noMessages.length - 1);
+      noBtn.textContent = noMessages[idx];
+
+      const emojiIdx = Math.min(noClickCount, emojiStates.length - 1);
+      emoji.textContent = emojiStates[emojiIdx];
+
+      const scaleFactor = 1 + noClickCount * 0.3;
+      yesBtn.style.transform = `scale(${scaleFactor})`;
+      yesBtn.style.fontSize = (1 + noClickCount * 0.2) + "rem";
+      yesBtn.style.padding = `${0.8 + noClickCount * 0.15}rem ${1.5 + noClickCount * 0.25}rem`;
+
+      if (noClickCount >= 5) {
+        noBtn.disabled = true;
+        noBtn.textContent = "You can only choose love now 💌";
+        footerHint.textContent = "The \"Yes\" button has won. Choose love! 💕";
+      }
+    });
+
+    yesBtn.addEventListener("click", () => {
+      emoji.textContent = "😍";
+
+      // Random title
+      const titles = [
+        "YAY! You're my Valentine now 💘",
+        "Happy Valentine's Day, my favourite human ❤️",
+        "You said yes! Best day ever 💕"
+      ];
+      title.textContent = titles[Math.floor(Math.random() * titles.length)];
+
+      subtitle.textContent = "Best. Decision. Ever. I promise unlimited hugs, memes, and emotional support!";
+
+      // Random footer message (ALWAYS shows)
+      const footers = [
+        "YAY! You're my Valentine now 💘",
+        "Happy Valentine's Day! I love you loads ❤️",
+        "Best. Decision. Ever. I promise unlimited hugs, memes, and emotional support!"
+      ];
+      footerHint.textContent = footers[Math.floor(Math.random() * footers.length)];
+
+      // Hide buttons
+      buttonsRow.classList.add("hidden");
+
+      // Confetti burst
+      confettiBurst();
+    });
+
+    // Confetti function (safe for mobile)
+    function confettiBurst() {
+      const colors = ['#ff6b9d', '#ff8fb2', '#ff9aa2', '#ffb7b2', '#ffdac1', '#c3e0e5'];
+      
+      for (let i = 0; i < 80; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.textContent = '💖';
+          heart.style.position = 'fixed';
+          heart.style.left = Math.random() * 100 + 'vw';
+          heart.style.top = '100vh';
+          heart.style.fontSize = Math.random() * 20 + 16 + 'px';
+          heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+          heart.style.pointerEvents = 'none';
+          heart.style.zIndex = '100';
+          document.body.appendChild(heart);
+
+          // Animate up
+          let y = window.innerHeight;
+          const speed = Math.random() * 3 + 2;
+          const sway = (Math.random() - 0.5) * 4;
+
+          function animate() {
+            y -= speed;
+            heart.style.top = y + 'px';
+            heart.style.left = (parseFloat(heart.style.left) + sway) + 'px';
+            heart.style.transform = `rotate(${Math.random() * 360}deg)`;
+            if (y > -50) requestAnimationFrame(animate);
+            else document.body.removeChild(heart);
+          }
+          animate();
+        }, i * 20);
+      }
+    }
+  </script>
+</body>
+</html>
